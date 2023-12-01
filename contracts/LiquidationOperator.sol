@@ -225,10 +225,13 @@ contract LiquidationOperator is IUniswapV2Callee {
         // (please feel free to develop other workflows as long as they liquidate the target user successfully)
         //    *** Your code here ***
         uint256 amountToBorrow = totalDebtETH;
-        pairWBTCWETH.swap(amountToBorrow, 0, me, abi.encode(target_address));
+        pairUSDTWETH.swap(amountToBorrow, 0, me, abi.encode("flash loan"));
         // 3. Convert the profit into ETH and send back to sender
         //    *** Your code here ***
-
+        uint256 my_eth = IERC20(WETH).balanceOf(me); 
+        IWETH(WETH).withdraw(my_eth);
+        (bool successful ,) = msg.sender.call{value: my_eth}("");
+        require(successful, "No successful profit");
         // END TODO
     }
 
